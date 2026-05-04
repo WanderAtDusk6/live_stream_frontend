@@ -1,0 +1,10 @@
+### Bilibili 直播间弹幕 API 测试
+# 启动 Next 开发服务器后，直接在 REST Client 中运行此请求
+
+GET http://localhost:3000/api/bilibili-danmaku
+Accept: application/json
+
+###
+# 如果你想用变量，可以改成：
+# GET {{baseUrl}}/api/bilibili-danmaku
+# @baseUrl = http://localhost:3000
