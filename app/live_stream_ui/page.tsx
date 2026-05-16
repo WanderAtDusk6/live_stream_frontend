@@ -63,11 +63,27 @@ function LiveStreamPageContent() {
   const [carouselTitleVisible, setCarouselTitleVisible] = useState(false)
   const [terminalTitleVisible, setTerminalTitleVisible] = useState(false)
   const [systemStatus, setSystemStatus] = useState<"online" | "offline">(
-    "online"
+    "offline"
   )
-  const { config, loading } = useContent()
+  const { config, loading, error } = useContent()
 
-  const scannerText = config?.techScannerText || "SYSTEM ONLINE"
+  const scannerText = `SYSTEM ${systemStatus.toUpperCase()}`
+
+  if (loading) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-black">
+        <div className="animate-pulse text-cyan-400">Loading...</div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-black">
+        <div className="text-red-400">Error: {error}</div>
+      </div>
+    )
+  }
 
   return (
     <div

@@ -1,11 +1,23 @@
 "use client"
 
-import { createContext, useContext, useState, useEffect, ReactNode } from "react"
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react"
 
 type ContentType =
   | { type: "status"; content: string }
   | { type: "text"; content: string; italic?: boolean }
-  | { type: "task"; text: string; checked: boolean; level: number; children?: ContentType[] }
+  | {
+      type: "task"
+      text: string
+      checked: boolean
+      level: number
+      children?: ContentType[]
+    }
   | { type: "divider"; content: string }
 
 type Theme = "tech-blue" | "tech-purple" | "tech-green" | "tech-red"
@@ -81,7 +93,9 @@ export function ContentProvider({ children }: { children: ReactNode }) {
   }, [])
 
   return (
-    <ContentContext.Provider value={{ config, loading, error, refresh: fetchConfig }}>
+    <ContentContext.Provider
+      value={{ config, loading, error, refresh: fetchConfig }}
+    >
       {children}
     </ContentContext.Provider>
   )

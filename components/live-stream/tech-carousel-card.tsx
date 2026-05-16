@@ -1,11 +1,19 @@
 "use client"
 
-import { carouselData } from "../../data"
+import type { CarouselItem, ContentType } from "./content-context"
 
-type CarouselItemType = (typeof carouselData)[0]
-type ContentType = CarouselItemType["content"][0] & { children?: ContentType[] }
+type CarouselItemType = CarouselItem
+type TaskContentType = ContentType & { type: "task" }
 
-function TaskItem({ task, theme, level = 0 }: { task: ContentType & { type: "task" }; theme: CarouselItemType["theme"]; level?: number }) {
+function TaskItem({
+  task,
+  theme,
+  level = 0,
+}: {
+  task: TaskContentType
+  theme: CarouselItemType["theme"]
+  level?: number
+}) {
   const headerClasses = {
     "tech-blue": "text-[#00f0ff]",
     "tech-purple": "text-[#c864ff]",
@@ -28,17 +36,22 @@ function TaskItem({ task, theme, level = 0 }: { task: ContentType & { type: "tas
         <span
           className={`mr-2 inline-flex h-3 w-3 shrink-0 items-center justify-center rounded border border-[#00ff88] text-[8px] transition-all ${task.checked ? "bg-[#00ff88]" : ""}`}
         >
-          {task.checked && (
-            <span className="font-bold text-[#0a1f25]">✓</span>
-          )}
+          {task.checked && <span className="font-bold text-[#0a1f25]">✓</span>}
         </span>
         <span>{task.text}</span>
       </p>
-      {task.children && task.children.map((child, idx) => (
-        child.type === "task" && (
-          <TaskItem key={idx} task={child} theme={theme} level={level + 1} />
-        )
-      ))}
+      {task.children &&
+        task.children.map(
+          (child, idx) =>
+            child.type === "task" && (
+              <TaskItem
+                key={idx}
+                task={child}
+                theme={theme}
+                level={level + 1}
+              />
+            )
+        )}
     </div>
   )
 }
@@ -97,7 +110,7 @@ export function TechCarouselCard({ item }: { item: CarouselItemType }) {
         <div className="flex flex-1 flex-col justify-center overflow-hidden">
           {hasImage ? (
             <div className="flex flex-1 flex-col items-center justify-center p-2">
-              <div className="flex-1 flex items-center justify-center">
+              <div className="flex flex-1 items-center justify-center">
                 <img
                   src={item.image}
                   alt={item.title}
@@ -151,11 +164,12 @@ export function TechCarouselCard({ item }: { item: CarouselItemType }) {
 
               {hasTasks && (
                 <div className="mb-2">
-                  {taskContent.map((c, idx) => (
-                    c.type === "task" && (
-                      <TaskItem key={idx} task={c} theme={item.theme} />
-                    )
-                  ))}
+                  {taskContent.map(
+                    (c, idx) =>
+                      c.type === "task" && (
+                        <TaskItem key={idx} task={c} theme={item.theme} />
+                      )
+                  )}
                 </div>
               )}
 

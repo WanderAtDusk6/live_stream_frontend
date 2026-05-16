@@ -1,0 +1,25 @@
+{
+  "techScannerText": "SYSTEM ONLINE",
+  "carouselAutoPlay": true,
+  "carouselInterval": 8000,
+  "carousel": [
+    {
+      "id": 1,
+      "theme": "tech-blue"
+    },
+    {
+      "id": 2,
+      "theme": "tech-purple"
+    },
+    {
+      "id": 3,
+      "theme": "tech-green"
+    },
+    {
+      "id": 4,
+      "title": "Ciallo~(∠・ω< )⌒★",
+      "theme": "tech-red",
+      "image": "/character_sprite/XinLing.v2.olm.jpg"
+    }
+  ]
+}

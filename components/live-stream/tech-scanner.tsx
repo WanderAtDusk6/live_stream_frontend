@@ -26,9 +26,14 @@ const statusStyles = {
   },
 }
 
-export function TechScanner({ className = "", text = "SYSTEM ONLINE", status = "online", onClick }: TechScannerProps) {
+export function TechScanner({
+  className = "",
+  text = "SYSTEM ONLINE",
+  status = "online",
+  onClick,
+}: TechScannerProps) {
   const styles = statusStyles[status]
-  
+
   return (
     <div
       onClick={onClick}
@@ -36,11 +41,17 @@ export function TechScanner({ className = "", text = "SYSTEM ONLINE", status = "
     >
       <div className="absolute inset-0 flex items-center justify-center">
         <div className="flex items-center gap-1">
-          <div className={`h-1 w-1 ${status === "online" ? "animate-pulse" : ""} rounded-full ${styles.dotColor}`} />
-          <span className={`font-mono text-[10px] tracking-wider ${styles.textColor}`}>
+          <div
+            className={`h-1 w-1 ${status === "online" ? "animate-pulse" : ""} rounded-full ${styles.dotColor}`}
+          />
+          <span
+            className={`font-mono text-[10px] tracking-wider ${styles.textColor}`}
+          >
             {text}
           </span>
-          <div className={`h-1 w-1 ${status === "online" ? "animate-pulse" : ""} rounded-full ${styles.dotColor}`} />
+          <div
+            className={`h-1 w-1 ${status === "online" ? "animate-pulse" : ""} rounded-full ${styles.dotColor}`}
+          />
         </div>
       </div>
 
@@ -48,8 +59,7 @@ export function TechScanner({ className = "", text = "SYSTEM ONLINE", status = "
         <div
           className="absolute inset-0 opacity-20"
           style={{
-            background:
-              `linear-gradient(90deg, transparent, ${styles.scanColor}, transparent)`,
+            background: `linear-gradient(90deg, transparent, ${styles.scanColor}, transparent)`,
             animation: "scan 2s linear infinite",
           }}
         />
@@ -58,8 +68,7 @@ export function TechScanner({ className = "", text = "SYSTEM ONLINE", status = "
       <div
         className="absolute right-0 bottom-0 left-0 h-[1px]"
         style={{
-          background:
-            `linear-gradient(90deg, transparent, ${styles.glowColor}, transparent)`,
+          background: `linear-gradient(90deg, transparent, ${styles.glowColor}, transparent)`,
           animation: "glow 1.5s ease-in-out infinite",
         }}
       />

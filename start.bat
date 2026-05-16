@@ -1,7 +1,11 @@
 @echo off
 chcp 65001
 cd /d "d:\projects\tsubasa_studio\virtual_character\live_stream_frontend"
-echo Building...
+
+echo Cleaning up port 3003...
+for /f "tokens=5" %%a in ('netstat -ano ^| findstr :3003 ^| findstr LISTENING') do taskkill /F /PID %%a 2>nul
+
+echo Building production version...
 pnpm run build
 if %ERRORLEVEL% NEQ 0 (
     echo Build failed!

@@ -7,10 +7,30 @@ const DATA_DIR = path.join(process.cwd(), "data")
 type ContentType =
   | { type: "status"; content: string }
   | { type: "text"; content: string; italic?: boolean }
-  | { type: "task"; text: string; checked: boolean; level: number; children?: ContentType[] }
+  | {
+      type: "task"
+      text: string
+      checked: boolean
+      level: number
+      children?: ContentType[]
+    }
   | { type: "divider"; content: string }
 
 type Theme = "tech-blue" | "tech-purple" | "tech-green" | "tech-red"
+
+interface CarouselConfig {
+  id: number
+  title?: string
+  theme: Theme
+  image?: string
+}
+
+interface ConfigData {
+  techScannerText: string
+  carouselAutoPlay: boolean
+  carouselInterval: number
+  carousel: CarouselConfig[]
+}
 
 interface CarouselItem {
   id: number
@@ -20,60 +40,37 @@ interface CarouselItem {
   image?: string
 }
 
-function parseConfig(content: string) {
-  const lines = content.split("\n")
-  const config: Record<string, string> = {}
-
-  let currentKey = ""
-  for (const line of lines) {
-    const trimmed = line.trim()
-    if (!trimmed) continue
-    if (trimmed.startsWith("#")) continue
-
-    if (trimmed.startsWith("## ")) {
-      currentKey = trimmed.replace("## ", "").split(" / ")[0].trim()
-      continue
-    }
-
-    if (currentKey) {
-      config[currentKey] = trimmed
-    }
-  }
-
-  return {
-    techScannerText: config["TechScanner 文字"] || "SYSTEM ONLINE",
-    carouselAutoPlay: config["走马灯自动播放"] !== "false",
-    carouselInterval: parseInt(config["走马灯间隔（毫秒）"] || "8000"),
-  }
-}
-
-function parseMarkdown(content: string): { title: string; theme: Theme; content: ContentType[]; image?: string } {
+function parseContent(content: string): {
+  title: string
+  content: ContentType[]
+} {
   const lines = content.split("\n")
   const result: ContentType[] = []
   let title = ""
-  let theme: Theme = "tech-blue"
-  let image: string | undefined
+  let inComment = false
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i]
     const trimmed = line.trim()
     if (!trimmed) continue
 
-    if (trimmed.startsWith("# ")) {
-      title = trimmed.replace("# ", "").trim()
-      continue
-    }
-
-    if (trimmed.startsWith("theme:")) {
-      const themeValue = trimmed.replace("theme:", "").trim()
-      if (["tech-blue", "tech-purple", "tech-green", "tech-red"].includes(themeValue)) {
-        theme = themeValue as Theme
+    if (trimmed.startsWith("<!--")) {
+      inComment = true
+      if (trimmed.endsWith("-->")) {
+        inComment = false
       }
       continue
     }
 
-    if (trimmed.startsWith("image:")) {
-      image = trimmed.replace("image:", "").trim()
+    if (inComment) {
+      if (trimmed.endsWith("-->")) {
+        inComment = false
+      }
+      continue
+    }
+
+    if (trimmed.startsWith("# ")) {
+      title = trimmed.replace("# ", "").trim()
       continue
     }
 
@@ -141,35 +138,77 @@ function parseMarkdown(content: string): { title: string; theme: Theme; content:
     }
   }
 
-  return { title, theme, content: processedContent, image }
+  return { title, content: processedContent }
 }
 
 export async function GET() {
   try {
-    const configContent = fs.readFileSync(path.join(DATA_DIR, "config.md"), "utf-8")
-    const carousel1Content = fs.readFileSync(path.join(DATA_DIR, "carousel-1-about.md"), "utf-8")
-    const carousel2Content = fs.readFileSync(path.join(DATA_DIR, "carousel-2-live.md"), "utf-8")
-    const carousel3Content = fs.readFileSync(path.join(DATA_DIR, "carousel-3-tasks.md"), "utf-8")
-    const carousel4Content = fs.readFileSync(path.join(DATA_DIR, "carousel-4-avatar.md"), "utf-8")
+    const configContent = fs.readFileSync(
+      path.join(DATA_DIR, "config.json"),
+      "utf-8"
+    )
+    const config: ConfigData = JSON.parse(configContent)
 
-    const config = parseConfig(configContent)
-    const carousel1 = parseMarkdown(carousel1Content)
-    const carousel2 = parseMarkdown(carousel2Content)
-    const carousel3 = parseMarkdown(carousel3Content)
-    const carousel4 = parseMarkdown(carousel4Content)
+    const carousel1Content = fs.readFileSync(
+      path.join(DATA_DIR, "carousel-1-about.md"),
+      "utf-8"
+    )
+    const carousel2Content = fs.readFileSync(
+      path.join(DATA_DIR, "carousel-2-live.md"),
+      "utf-8"
+    )
+    const carousel3Content = fs.readFileSync(
+      path.join(DATA_DIR, "carousel-3-tasks.md"),
+      "utf-8"
+    )
+    const carousel4Content = fs.readFileSync(
+      path.join(DATA_DIR, "carousel-4-avatar.md"),
+      "utf-8"
+    )
+
+    const carousel1 = parseContent(carousel1Content)
+    const carousel2 = parseContent(carousel2Content)
+    const carousel3 = parseContent(carousel3Content)
+    const carousel4 = parseContent(carousel4Content)
+
+    const carousel1Config = config.carousel.find((c) => c.id === 1)!
+    const carousel2Config = config.carousel.find((c) => c.id === 2)!
+    const carousel3Config = config.carousel.find((c) => c.id === 3)!
+    const carousel4Config = config.carousel.find((c) => c.id === 4)!
 
     const carouselData: CarouselItem[] = [
-      { id: 1, ...carousel1 },
-      { id: 2, ...carousel2 },
-      { id: 3, ...carousel3 },
-      { id: 4, ...carousel4 },
+      {
+        id: 1,
+        title: carousel1.title || "未命名",
+        theme: carousel1Config.theme,
+        content: carousel1.content,
+      },
+      {
+        id: 2,
+        title: carousel2.title || "未命名",
+        theme: carousel2Config.theme,
+        content: carousel2.content,
+      },
+      {
+        id: 3,
+        title: carousel3.title || "未命名",
+        theme: carousel3Config.theme,
+        content: carousel3.content,
+      },
+      {
+        id: 4,
+        title: carousel4Config.title || carousel4.title || "未命名",
+        theme: carousel4Config.theme,
+        content: carousel4.content,
+        image: carousel4Config.image,
+      },
     ]
 
     return NextResponse.json({
-      techScannerText: config.techScannerText,
+      techScannerText: config.techScannerText || "SYSTEM ONLINE",
       carousel: {
-        autoPlay: config.carouselAutoPlay,
-        interval: config.carouselInterval,
+        autoPlay: config.carouselAutoPlay !== false,
+        interval: config.carouselInterval || 8000,
         pauseOnHover: false,
         data: carouselData,
       },
@@ -184,6 +223,9 @@ export async function GET() {
     })
   } catch (error) {
     console.error("Error reading content files:", error)
-    return NextResponse.json({ error: "Failed to load content" }, { status: 500 })
+    return NextResponse.json(
+      { error: "Failed to load content" },
+      { status: 500 }
+    )
   }
 }
