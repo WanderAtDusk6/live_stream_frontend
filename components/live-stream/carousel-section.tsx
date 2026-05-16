@@ -1,8 +1,8 @@
 "use client"
 
 import { useEffect, useCallback, useRef, useState } from "react"
-import { carouselData, appConfig } from "../../data"
 import { TechCarouselCard } from "./tech-carousel-card"
+import { useContent } from "./content-context"
 import {
   Carousel,
   CarouselContent,
@@ -19,9 +19,14 @@ export function CarouselSection({
   className = "",
   isPaused = false,
 }: CarouselSectionProps) {
+  const { config } = useContent()
   const carouselApiRef = useRef<CarouselApi | null>(null)
   const autoSlideIntervalRef = useRef<NodeJS.Timeout | null>(null)
   const [activeIndex, setActiveIndex] = useState(0)
+
+  const carouselData = config?.carousel.data || []
+  const autoPlay = config?.carousel.autoPlay ?? true
+  const interval = config?.carousel.interval ?? 8000
 
   const setCarouselApi = useCallback((api: CarouselApi) => {
     carouselApiRef.current = api
@@ -42,18 +47,15 @@ export function CarouselSection({
   }, [isPaused])
 
   useEffect(() => {
-    if (appConfig.carousel.autoPlay && !isPaused) {
-      autoSlideIntervalRef.current = setInterval(
-        nextSlide,
-        appConfig.carousel.interval
-      )
+    if (autoPlay && !isPaused) {
+      autoSlideIntervalRef.current = setInterval(nextSlide, interval)
     }
     return () => {
       if (autoSlideIntervalRef.current) {
         clearInterval(autoSlideIntervalRef.current)
       }
     }
-  }, [nextSlide, isPaused])
+  }, [nextSlide, isPaused, autoPlay, interval])
 
   return (
     <div className={`relative ${className}`}>
@@ -61,9 +63,9 @@ export function CarouselSection({
         <Carousel
           setApi={setCarouselApi}
           className="h-full"
-          opts={{ 
+          opts={{
             watchDrag: false,
-            loop: true
+            loop: true,
           }}
         >
           <CarouselContent className="h-full" style={{ height: "280px" }}>

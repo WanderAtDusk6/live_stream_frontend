@@ -7,14 +7,20 @@ import {
   CarouselSection,
   TerminalSection,
   TechScanner,
-  appConfig,
+  ContentProvider,
+  useContent,
 } from "@/components/live-stream"
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"
-import { ChevronDownIcon, ChevronUpIcon, EyeIcon, EyeOffIcon } from "lucide-react"
+import {
+  ChevronDownIcon,
+  ChevronUpIcon,
+  EyeIcon,
+  EyeOffIcon,
+} from "lucide-react"
 
 interface CollapsibleItemProps {
   title: string
@@ -50,13 +56,18 @@ function CollapsibleItem({
   )
 }
 
-export default function LiveStreamPage() {
+function LiveStreamPageContent() {
   const [carouselVisible, setCarouselVisible] = useState(true)
   const [carouselPaused, setCarouselPaused] = useState(false)
   const [terminalVisible, setTerminalVisible] = useState(true)
   const [carouselTitleVisible, setCarouselTitleVisible] = useState(false)
   const [terminalTitleVisible, setTerminalTitleVisible] = useState(false)
-  const [systemStatus, setSystemStatus] = useState<"online" | "offline">("online")
+  const [systemStatus, setSystemStatus] = useState<"online" | "offline">(
+    "online"
+  )
+  const { config, loading } = useContent()
+
+  const scannerText = config?.techScannerText || "SYSTEM ONLINE"
 
   return (
     <div
@@ -80,19 +91,21 @@ export default function LiveStreamPage() {
         {/* 右侧面板 - 布局完全在这里控制！ */}
         <RightPanel>
           {/* 顶部科技感动画 - 点击切换 ONLINE/OFFLINE */}
-          <TechScanner 
-            className="mb-2" 
-            text={systemStatus === "online" ? "SYSTEM ONLINE" : "SYSTEM OFFLINE"} 
+          <TechScanner
+            className="mb-2"
+            text={scannerText}
             status={systemStatus}
-            onClick={() => setSystemStatus(systemStatus === "online" ? "offline" : "online")}
+            onClick={() =>
+              setSystemStatus(systemStatus === "online" ? "offline" : "online")
+            }
           />
 
           <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
             {/* 跑马灯 */}
             {carouselVisible && (
-              <CollapsibleItem 
-                title="Carousel" 
-                defaultOpen 
+              <CollapsibleItem
+                title="Carousel"
+                defaultOpen
                 showTitle={carouselTitleVisible}
               >
                 <CarouselSection isPaused={carouselPaused} />
@@ -101,9 +114,9 @@ export default function LiveStreamPage() {
 
             {/* 终端 */}
             {terminalVisible && (
-              <CollapsibleItem 
-                title="Terminal" 
-                defaultOpen 
+              <CollapsibleItem
+                title="Terminal"
+                defaultOpen
                 showTitle={terminalTitleVisible}
               >
                 <TerminalSection />
@@ -136,14 +149,22 @@ export default function LiveStreamPage() {
               onClick={() => setCarouselTitleVisible(!carouselTitleVisible)}
               className="flex cursor-pointer items-center gap-0.5 border border-cyan-500 bg-transparent px-1.5 py-0.5 text-[10px] text-cyan-400 transition-all hover:bg-cyan-500/20"
             >
-              {carouselTitleVisible ? <EyeOffIcon className="h-3 w-3" /> : <EyeIcon className="h-3 w-3" />}
+              {carouselTitleVisible ? (
+                <EyeOffIcon className="h-3 w-3" />
+              ) : (
+                <EyeIcon className="h-3 w-3" />
+              )}
               Carousel Title
             </button>
             <button
               onClick={() => setTerminalTitleVisible(!terminalTitleVisible)}
               className="flex cursor-pointer items-center gap-0.5 border border-cyan-500 bg-transparent px-1.5 py-0.5 text-[10px] text-cyan-400 transition-all hover:bg-cyan-500/20"
             >
-              {terminalTitleVisible ? <EyeOffIcon className="h-3 w-3" /> : <EyeIcon className="h-3 w-3" />}
+              {terminalTitleVisible ? (
+                <EyeOffIcon className="h-3 w-3" />
+              ) : (
+                <EyeIcon className="h-3 w-3" />
+              )}
               Terminal Title
             </button>
           </div>
@@ -153,5 +174,13 @@ export default function LiveStreamPage() {
       {/* 底部区域 - 可以在这里加状态栏、版权信息等 */}
       <div className="h-0">{/* 你要的新元素可以加在这里 */}</div>
     </div>
+  )
+}
+
+export default function LiveStreamPage() {
+  return (
+    <ContentProvider>
+      <LiveStreamPageContent />
+    </ContentProvider>
   )
 }

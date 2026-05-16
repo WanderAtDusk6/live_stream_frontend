@@ -5,5 +5,6 @@ export { RightPanel } from "./right-panel"
 export { CarouselSection } from "./carousel-section"
 export { TerminalSection } from "./terminal-section"
 export { TechScanner } from "./tech-scanner"
+export { ContentProvider, useContent } from "./content-context"
 
 export { carouselData, appConfig } from "../../data"
